@@ -15,14 +15,36 @@ public class ChatBot{
   */
   public String getResponse(String statement){
     String response = "";
-    if(statement.indexOf("no")>=0){
-      response = "Why so negative?";
-    }else if(statement.indexOf("mother")>0 ||  statement.indexOf("father")>0 || statement.indexOf("sister")>0 || statement.indexOf("brother")>0){
-      response = "Tell me more about your family.";
+    if(!((statement.trim()).length() == 0)){
+      if(findKeyword(statement, "No", 0)!=-1){
+        response = "Why so negative?";
+      }else if(findKeyword(statement, "Mother", 0)!=-1 || findKeyword(statement, "Father", 0)!=-1 || findKeyword(statement, "Sister", 0)!=-1 || findKeyword(statement, "Brother", 0)!=-1){
+        response = "Tell me more about your family.";
+      }else if(findKeyword(statement, "dog", 0)!=-1 ||  findKeyword(statement, "cat", 0)!=-1){
+        response = "Tell me more about your pets.";
+      }else if(findKeyword(statement, "Zeller", 0)!=-1){
+        response = "Your teacher sounds like a nice person!";
+      }else if(findKeyword(statement, "Bruh", 0)!=-1){
+        response = "bruh";
+      }else if(findKeyword(statement, "leave", 0)!=-1 || findKeyword(statement, "exit", 0)!=-1){
+        response = "Say \"bye\" to stop talking.";
+      }else if(findKeyword(statement, "Home", 0)!=-1){
+        response = "Speaking of home, are you going to Homecoming?";
+      }else if(findKeyword(statement, "I want to", 0)!=-1){
+        response = transformIWantToStatement(statement);
+      }else if(findKeyword(statement, "You", 0)!=-1 && findKeyword(statement, "Me", 0)>findKeyword(statement, "You", 0)){
+        response = transformYouMeStatement(statement);
+      }else if(findKeyword(statement, "I", 0)!=-1 && findKeyword(statement, "You", 0)>findKeyword(statement, "I", 0)){
+        response = transformIYouStatement(statement);
+      }else if(findKeyword(statement, "I want", 0)!=-1){
+        response = transformIWantStatement(statement);
+      }else{
+        response = getRandomResponse();
+      }
+      return response;
     }else{
-      response = getRandomResponse();
+      return "Enter something";
     }
-    return response;
   }
 
   /*
@@ -30,7 +52,7 @@ public class ChatBot{
   * @return a non-commital string
   */
   private String getRandomResponse(){
-    int numberOfResponses = 4;
+    int numberOfResponses = 6;
     double r = Math.random();
     int whichResponse = (int)(r*numberOfResponses);
     String response = "";
@@ -43,6 +65,10 @@ public class ChatBot{
       response = "Do you really think so?";
     }else if(whichResponse==3){
       response = "You don't say.";
+    }else if(whichResponse==4){
+      response = "That's quite peculiar.";
+    }else if(whichResponse==5){
+      response = "Like that, huh.";
     }
     return response;
   }
@@ -143,5 +169,32 @@ public class ChatBot{
 
 		String restOfStatement = statement.substring(psnOfYou + 3, psnOfMe).trim();
 		return "What makes you think that I " + restOfStatement + " you?";
+	}
+
+  private String transformIWantStatement(String statement){
+		//  Remove the final period, if there is one
+		statement = statement.trim();
+		String lastChar = statement.substring(statement.length() - 1);
+		if (lastChar.equals(".")){
+			statement = statement.substring(0, statement.length() - 1);
+		}
+		int psn = findKeyword(statement, "I want", 0);
+		String restOfStatement = statement.substring(psn + 6).trim();
+		return "Would you really be happy if you had " + restOfStatement + "?";
+	}
+
+  private String transformIYouStatement(String statement){
+		//  Remove the final period, if there is one
+		statement = statement.trim();
+		String lastChar = statement.substring(statement.length() - 1);
+		if (lastChar.equals(".")){
+			statement = statement.substring(0, statement.length() - 1);
+		}
+
+		int psnOfYou = findKeyword (statement, "I", 0);
+		int psnOfMe = findKeyword (statement, "You", psnOfYou + 1);
+
+		String restOfStatement = statement.substring(psnOfYou + 1, psnOfMe).trim();
+		return "Why do you " + restOfStatement + " me?";
 	}
 }
